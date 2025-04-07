@@ -1,45 +1,159 @@
 import getBuffer from "./config/dataUri.js";
 import TryCatch from "./TryCatch.js";
 import { Request } from "express";
-import cloudinary  from 'cloudinary';
+import cloudinary from "cloudinary";
 import { sql } from "./config/db.js";
 
 interface AuthenticatedRequest extends Request {
-    user?: {
-        _id: string;
-        role: string;
-    }
+  user?: {
+    _id: string;
+    role: string;
+  };
 }
 
-export const addAlbum = TryCatch(async (req:AuthenticatedRequest, res) => {
-    if(req.user?.role !== "admin") {
-        res.status(403).json({message:"You are not Admin"})
-        return
-    }
+export const addAlbum = TryCatch(async (req: AuthenticatedRequest, res) => {
+  if (req.user?.role !== "admin") {
+    res.status(401).json({ message: "You are not Admin" });
+    return;
+  }
 
-    const { title, description } = req.body;
+  const { title, description } = req.body;
+  const file = req.file;
 
-    const file = req.file;
+  if (!file) {
+    res.status(400).json({ message: "Please upload a file" });
+    return;
+  }
 
-    if(!file){
-        res.status(400).json({message:"Please upload a file"})
-        return
-    }
+  const fileBuffer = getBuffer(file);
 
-    const fileBuffer =  getBuffer(file)
+  if (!fileBuffer || !fileBuffer.content) {
+    res.status(500).json({ message: "Filed To Generate File Buffer" });
+    return;
+  }
 
-    if(!fileBuffer  || !fileBuffer.content){
-        res.status(500).json({message:"Filed To Generate File Buffer"})
-        return
-    }
+  const cloud = await cloudinary.v2.uploader.upload(fileBuffer.content, {
+    folder: "albums",
+  });
+  const result = await sql`
+    INSERT INTO albums (title, description, thumbnail)VALUES (${title}, ${description}, ${cloud.secure_url})RETURNING *`;
+  res.json({
+    message: "Album Created",
+    album: result[0],
+  });
+});
 
-    const cloud =  await cloudinary.v2.uploader.upload(fileBuffer.content, {
-        folder: "albums",
-    })
-    const result = await sql`
-    INSERT INTO albums (title, description, thumbnail)
-    VALUES (${title}, ${description}, ${cloud.secure_url})
-    RETURNING *
-    `
-    
-} )
+export const addSong = TryCatch(async (req: AuthenticatedRequest, res) => {
+  if (req.user?.role !== "admin") {
+    res.status(401).json({ message: "You are not Admin" });
+    return;
+  }
+
+  const { title, description, album } = req.body;
+
+  const isAlbum = await sql`SELECT * FROM albums WHERE id = ${album}`;
+  if (isAlbum.length === 0) {
+    res.status(404).json({ message: "No album with this id" });
+    return;
+  }
+
+  const file = req.file;
+
+  if (!file) {
+    res.status(400).json({ message: "Please upload a file" });
+    return;
+  }
+
+  const fileBuffer = getBuffer(file);
+  if (!fileBuffer || !fileBuffer.content) {
+    res.status(500).json({ message: "Filed To Generate File Buffer" });
+    return;
+  }
+
+  const cloud = await cloudinary.v2.uploader.upload(fileBuffer.content, {
+    folder: "songs",
+    resource_type: "video",
+  });
+  const result = await sql`
+INSERT INTO songs (title, description, audio, album_id)VALUES (${title}, ${description}, ${cloud.secure_url},${album})RETURNING *
+`;
+
+  res.json({
+    message: "Song Added",
+  });
+});
+
+export const addThumbnail = TryCatch(async (req: AuthenticatedRequest, res) => {
+  if (req.user?.role !== "admin") {
+    res.status(401).json({ message: "You are not Admin" });
+    return;
+  }
+
+  const song = await sql`SELECT * FROM songs WHERE id = ${req.params.id}`;
+
+  if (song.length === 0) {
+    res.status(404).json({ message: "No song with this id" });
+    return;
+  }
+
+  const file = req.file;
+
+  if (!file) {
+    res.status(400).json({ message: "Please upload a file" });
+    return;
+  }
+
+  const fileBuffer = getBuffer(file);
+  if (!fileBuffer || !fileBuffer.content) {
+    res.status(500).json({ message: "Filed To Generate File Buffer" });
+    return;
+  }
+
+  const cloud = await cloudinary.v2.uploader.upload(fileBuffer.content);
+  const result =
+    await sql`UPDATE songs SET thumbnail = ${cloud.secure_url} WHERE id = ${req.params.id} RETURNING *`;
+  res.json({
+    message: "Thumbnail Added",
+    song: result[0],
+  });
+});
+
+export const deleteAlbum = TryCatch(async (req: AuthenticatedRequest, res) => {
+  if (req.user?.role !== "admin") {
+    res.status(401).json({ message: "You are not Admin" });
+    return;
+  }
+
+  const { id } = req.params;
+  console.log("ddd",id)
+
+  const isAlbum = await sql`SELECT * FROM albums WHERE id = ${id}`;
+  if (isAlbum.length === 0) {
+    res.status(404).json({ message: "No album with this id" });
+    return;
+  }
+
+  await sql`DELETE FROM songs WHERE album_id = ${id}`;
+  await sql`DELETE FROM albums WHERE id = ${id}`;
+
+  res.json({
+    message: "Album Deleted Successfully",
+  });
+});
+
+
+export const deleteSong = TryCatch(async (req: AuthenticatedRequest, res) => {
+
+  if (req.user?.role !== "admin") {
+    res.status(401).json({ message: "You are not Admin" });
+    return;
+  }
+
+  const { id } = req.params;
+
+  await sql`DELETE FROM songs WHERE id = ${id}`;
+  res.json({
+    message:"Song Deleted Successfully",
+  })
+
+})
