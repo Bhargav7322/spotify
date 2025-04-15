@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import userRoutes from './route.js';
+import cors from 'cors';
 
 dotenv.config()
 
@@ -20,6 +21,8 @@ try {
 const port  = process.env.PORT || 5000
 
 const app = express()
+
+app.use(cors())
 
 app.use(express.json())
 

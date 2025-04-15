@@ -3,6 +3,7 @@ import TryCatch from "./TryCatch.js";
 import { Request } from "express";
 import cloudinary from "cloudinary";
 import { sql } from "./config/db.js";
+import { redisClinet } from "./index.js";
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -37,6 +38,11 @@ export const addAlbum = TryCatch(async (req: AuthenticatedRequest, res) => {
   });
   const result = await sql`
     INSERT INTO albums (title, description, thumbnail)VALUES (${title}, ${description}, ${cloud.secure_url})RETURNING *`;
+
+  if(redisClinet.isReady){
+    await redisClinet.del("albums");
+    console.log("Cache invalidated for albums"); 
+  }
   res.json({
     message: "Album Created",
     album: result[0],
@@ -77,6 +83,11 @@ export const addSong = TryCatch(async (req: AuthenticatedRequest, res) => {
   const result = await sql`
 INSERT INTO songs (title, description, audio, album_id)VALUES (${title}, ${description}, ${cloud.secure_url},${album})RETURNING *
 `;
+   
+if(redisClinet.isReady){
+  await redisClinet.del("songs");
+  console.log("Cache invalidated for songs"); 
+}
 
   res.json({
     message: "Song Added",
@@ -112,6 +123,13 @@ export const addThumbnail = TryCatch(async (req: AuthenticatedRequest, res) => {
   const cloud = await cloudinary.v2.uploader.upload(fileBuffer.content);
   const result =
     await sql`UPDATE songs SET thumbnail = ${cloud.secure_url} WHERE id = ${req.params.id} RETURNING *`;
+
+    if(redisClinet.isReady){
+      await redisClinet.del("albums");
+      console.log("Cache invalidated for albums"); 
+    }
+
+
   res.json({
     message: "Thumbnail Added",
     song: result[0],
@@ -135,6 +153,16 @@ export const deleteAlbum = TryCatch(async (req: AuthenticatedRequest, res) => {
 
   await sql`DELETE FROM songs WHERE album_id = ${id}`;
   await sql`DELETE FROM albums WHERE id = ${id}`;
+
+  if(redisClinet.isReady){
+    await redisClinet.del("albums");
+    console.log("Cache invalidated for albums"); 
+  }
+
+  if(redisClinet.isReady){
+    await redisClinet.del("songs");
+    console.log("Cache invalidated for songs"); 
+  }
 
   res.json({
     message: "Album Deleted Successfully",
