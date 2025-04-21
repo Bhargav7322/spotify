@@ -28,9 +28,6 @@ export const getAllAlbum = TryCatch(async (req, res) => {
   }
 
 });
-  // albums = await sql`SELECT * FROM albums`;
-
-  // res.json(albums);
 
 export const getAllsongs = TryCatch(async (req, res) => {
   let songs;

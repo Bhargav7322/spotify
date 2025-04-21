@@ -1,32 +1,105 @@
-import React, {createContext,ReactNode,useContext ,useEffect,useState} from 'react';
+import React, {
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import axios from "axios";
 
-
-const server = "http://localhost:8000"
+const server = "http://localhost:8000";
 
 export interface Song {
-    id: string;
-    title: string;
-    description: string;
-    thumbnail: string;
-    audio: string;
-    album: string;
+  id: string;
+  title: string;
+  description: string;
+  thumbnail: string;
+  audio: string;
+  album: string;
 }
 
 export interface Album {
-    id: string;
-    title: string;
-    description: string;
-    thumbnail: string;
+  id: string;
+  title: string;
+  description: string;
+  thumbnail: string;
 }
 
+interface SongContextType {
+  songs: Song[];
+  isPlaying: boolean;
+  setIsPlaying: (value: boolean) => void;
+  loading: boolean;
+  selectedSong: string | null;
+  setSelectedSong: (id: string) => void;
+  albums: Album[];
+}
 
-const SongContext = createContext(undefined)
+const SongContext = createContext<SongContextType | undefined>(undefined);
 
 interface SongProviderProps {
-    children: ReactNode;
+  children: ReactNode;
 }
 
 export const SongProvider: React.FC<SongProviderProps> = ({ children }) => {
-    const [song, setSong] = useState<Song[]>([]);
-    return <SongContext.Provider value={(song)}>{children}</SongContext.Provider>;
-}
+  const [songs, setSong] = useState<Song[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [selectedSong, setSelectedSong] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [albums, setAlbums] = useState<Album[]>([]);
+
+  const fetchSongs = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data } = await axios.get<Song[]>(`${server}/api/v1/song/all`);
+      setSong(data);
+      if (data.length > 0) {
+        setSelectedSong(data[0].id.toString());
+        setIsPlaying(false);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchAlbum = useCallback(async () => {
+    try {
+      const { data } = await axios.get<Album[]>(`${server}/api/v1/album/all`);
+      setAlbums(data);
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchSongs();
+    fetchAlbum();
+  }, []);
+
+  return (
+    <SongContext.Provider
+      value={{
+        songs,
+        selectedSong,
+        setIsPlaying,
+        setSelectedSong,
+        isPlaying,
+        loading,
+        albums
+      }}
+    >
+      {children}
+    </SongContext.Provider>
+  );
+};
+
+export const useSongData = (): SongContextType => {
+  const context = useContext(SongContext);
+  if (!context) {
+    throw new Error("useSongData must be used within a SongProvider");
+  }
+  return context;
+};

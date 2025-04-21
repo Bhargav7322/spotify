@@ -24,8 +24,6 @@ export const getAllAlbum = TryCatch(async (req, res) => {
         return;
     }
 });
-// albums = await sql`SELECT * FROM albums`;
-// res.json(albums);
 export const getAllsongs = TryCatch(async (req, res) => {
     let songs;
     const CACHE_EXPIRY = 1800;
