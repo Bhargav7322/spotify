@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserData } from "../context/UserContext";
@@ -8,13 +9,18 @@ const Login = () => {
   const navigate = useNavigate();
   const { loginUser, btnLoading } = useUserData();
 
+  async function handleSubmit(e: any) {
+    e.preventDefault();
+    loginUser(email, password, navigate);
+  }
+
   return (
     <div className="flex items-center justify-center h-screen max-h-screen">
       <div className="bg-black text-white p-8 rounded-lg shadow-lg max-w-md w-full">
         <h2 className="text-3xl font-semibold text-center mb-8">
           Login To Spotify
         </h2>
-        <form className="mt-8">
+        <form className="mt-8" onSubmit={handleSubmit}>
           <div className="mb-4 ">
             <label className="block text-sm font-medium mb-1">
               Email or Username

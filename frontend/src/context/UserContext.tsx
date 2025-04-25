@@ -50,7 +50,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   ) {
     setBtnLoading(true);
     try {
-      const { data } = await axios.post(`${server}/api/v1/user/register`, {
+      const { data } = await axios.post(`${server}/api/v1/user/login`, {
         email,
         password,
       });
