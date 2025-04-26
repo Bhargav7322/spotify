@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useUserData } from "../context/UserContext";
 
 const Login = () => {
@@ -49,6 +49,14 @@ const Login = () => {
             {btnLoading ? "Please Wait ..." : "Login"}
           </button>
         </form>
+        <div className="text-center mt-6">
+          <Link
+            to={"/register"}
+            className="text-sm text-grey-400 hover:text-gery-300 "
+          >
+            Don't have an Account ?
+          </Link>
+        </div>
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import { FaBookmark, FaPlay } from "react-icons/fa";
+import { useUserData } from "../context/UserContext";
 
 interface SongCardProps {
   image: string;
@@ -8,6 +9,13 @@ interface SongCardProps {
 }
 
 const SongCard: React.FC<SongCardProps> = ({ image, name, desc, id }) => {
+
+  const {addToPlaylist,user} = useUserData()
+
+  const saveToPlaylist = () => {
+    addToPlaylist(id)
+  }
+
   return (
     <div className="min-w-[180px] p-2 px-3 rounded cursor-pointer hover:bg-[#ffffff26]">
       <div className="relative group">
@@ -18,7 +26,7 @@ const SongCard: React.FC<SongCardProps> = ({ image, name, desc, id }) => {
           <button className="absolute bottom-2 right-14  bg-green-500  text-black p-3  rounded-full group-hover:backdrop-opacity-100 transition-opacity duration-300">
             <FaPlay />
           </button>
-          <button className="absolute bottom-2 right-2 bg-green-500 text-black p-3 rounded-full  group-hover:backdrop-opacity-100 transition-opacity duration-300">
+          <button className="absolute bottom-2 right-2 bg-green-500 text-black p-3 rounded-full  group-hover:backdrop-opacity-100 transition-opacity duration-300" onClick={saveToPlaylist}>
             <FaBookmark />
           </button>
         </div>

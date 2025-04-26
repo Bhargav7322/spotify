@@ -4,9 +4,8 @@ import TryCatch from "./TryCatch.js";
 import bcrypt from "bcrypt";
 import Jwt from "jsonwebtoken";
 
-
 export const registerUser = TryCatch(async (req, res) => {
-  const { name, email, password} = req.body;
+  const { name, email, password } = req.body;
   let user = await User.findOne({ email });
 
   if (user) {
@@ -33,37 +32,66 @@ export const registerUser = TryCatch(async (req, res) => {
   });
 });
 
-
-export const loginUser= TryCatch(async (req, res) => {
+export const loginUser = TryCatch(async (req, res) => {
   const { email, password } = req.body;
-const user = await User.findOne({ email });
-if(!user){
-  res.status(404).json({
-    message:"User not Exists"
-  })
-  return
-}
+  const user = await User.findOne({ email });
+  if (!user) {
+    res.status(404).json({
+      message: "User not Exists",
+    });
+    return;
+  }
 
-const isMATCH = await bcrypt.compare(password, user.password);
+  const isMATCH = await bcrypt.compare(password, user.password);
 
-if(!isMATCH){
-  res.status(400).json({
-    message:"Invalid Password"
-  })
-  return
-}
-const token = Jwt.sign({ _id: user._id }, process.env.JWT_SEC as string, {
-  expiresIn: "7d",
+  if (!isMATCH) {
+    res.status(400).json({
+      message: "Invalid Password",
+    });
+    return;
+  }
+  const token = Jwt.sign({ _id: user._id }, process.env.JWT_SEC as string, {
+    expiresIn: "7d",
+  });
+
+  res.status(201).json({
+    message: "Loged In successfully",
+    user,
+    token,
+  });
 });
 
-res.status(201).json({
-  message: "Loged In successfully",
-  user,
-  token,
+export const myProfile = TryCatch(async (req: AuthenticatedRequest, res) => {
+  const user = req.user;
+  res.json(user);
 });
-})
 
-export const myProfil = TryCatch(async(req:AuthenticatedRequest,res)=>{
-  const user = req.user
-  res.json(user)
-})
+export const addToPlaylist = TryCatch(
+  async (req: AuthenticatedRequest, res) => {
+    const userId = req.user?._id;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      res.status(404).json({
+        message: "User not found with this id",
+      });
+      return;
+    }
+
+    if (user?.playlist.includes(req.params.id)) {
+      const index = user.playlist.indexOf(req.params.id);
+      user.playlist.splice(index, 1);
+      await user.save();
+      res.json({
+        message: "Removed from playlist",
+      });
+      return;
+    }
+    user.playlist.push(req.params.id);
+    await user.save();
+    res.json({
+      message: "Added to playlist",
+    });
+  }
+);
