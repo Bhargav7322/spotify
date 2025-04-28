@@ -13,7 +13,7 @@ const SongCard: React.FC<SongCardProps> = ({ image, name, desc, id }) => {
   const {addToPlaylist,user} = useUserData()
 
   const saveToPlaylist = () => {
-    addToPlaylist(id)
+    addToPlaylist(id.toString())
   }
 
   return (

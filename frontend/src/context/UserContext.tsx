@@ -10,7 +10,6 @@ import {
 
 import toast, { Toaster } from "react-hot-toast";
 
-
 const server = "http://localhost:5000";
 
 export interface User {
@@ -53,7 +52,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [isAuth, setIsAuth] = useState(false);
   const [btnLoading, setBtnLoading] = useState(false);
 
-
   async function registerUser(
     name: string,
     email: string,
@@ -79,8 +77,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       setBtnLoading(false);
     }
   }
-
-
 
   async function loginUser(
     email: string,
@@ -129,24 +125,23 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     toast.success("Logout Successfully");
   }
 
-
-async function addToPlaylist(id: string) {
+  async function addToPlaylist(id: string) {
     try {
-    const {data} = await axios.post(
-        `${server}/api/v1/song/${id}`,{
+      const { data } = await axios.post(
+        `${server}/api/v1/song/${id}`,
+        {},
+        {
           headers: {
             token: localStorage.getItem("token"),
           },
-        })
+        }
+      );
       toast.success(data.message);
-      fetchUser()
-    } catch (error:any) {
-    toast.error(error.response?.data?.message || "Something went wrong");
+      fetchUser();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Something went wrong");
     }
   }
-
-
-
 
   useEffect(() => {
     fetchUser();
@@ -154,7 +149,16 @@ async function addToPlaylist(id: string) {
 
   return (
     <UserContext.Provider
-      value={{ user, isAuth, loading, btnLoading, loginUser,registerUser,logoutUser,addToPlaylist }}
+      value={{
+        user,
+        isAuth,
+        loading,
+        btnLoading,
+        loginUser,
+        registerUser,
+        logoutUser,
+        addToPlaylist,
+      }}
     >
       {children}
       <Toaster />
