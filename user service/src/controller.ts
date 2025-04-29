@@ -80,7 +80,7 @@ export const addToPlaylist = TryCatch(
       return;
     }
 
-    if (user.playlist.includes(req.params.id)) {
+    if (user?.playlist.includes(req.params.id)) {
       const index = user.playlist.indexOf(req.params.id);
       user.playlist.splice(index, 1);
       await user.save();

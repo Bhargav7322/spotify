@@ -1,19 +1,22 @@
 import { FaBookmark, FaPlay } from "react-icons/fa";
 import { useUserData } from "../context/UserContext";
+import { useSongData } from "../context/SongContext";
 
 interface SongCardProps {
   image: string;
   name: string;
   desc: string;
-  id: number;
+  id: string;
 }
 
 const SongCard: React.FC<SongCardProps> = ({ image, name, desc, id }) => {
 
-  const {addToPlaylist,user} = useUserData()
+  const {addToPlaylist,isAuth} = useUserData()
+
+  const {setSelectedSong,setIsPlaying} = useSongData()
 
   const saveToPlaylist = () => {
-    addToPlaylist(id.toString())
+    addToPlaylist(id)
   }
 
   return (
@@ -23,12 +26,14 @@ const SongCard: React.FC<SongCardProps> = ({ image, name, desc, id }) => {
         <div className="flex gap-2">
           {/* <button className="absolute bottom-2 right-14 bg-green-500 text-black p-3 rounded-full opacity-0 group-hover:backdrop-opacity-100 transition-opacity duration-300"><FaPlay/></button>
                 <button className="absolute bottom-2 right-2 bg-green-500 text-black p-3 rounded-full opacity-0 group-hover:backdrop-opacity-100 transition-opacity duration-300"><FaBookmark/></button> */}
-          <button className="absolute bottom-2 right-14  bg-green-500  text-black p-3  rounded-full group-hover:backdrop-opacity-100 transition-opacity duration-300">
+          <button className="absolute bottom-2 right-14  bg-green-500  text-black p-3  rounded-full group-hover:backdrop-opacity-100 transition-opacity duration-300" onClick={() => {
+            setSelectedSong(id)
+            setIsPlaying(true)}}>
             <FaPlay />
           </button>
-          <button className="absolute bottom-2 right-2 bg-green-500 text-black p-3 rounded-full  group-hover:backdrop-opacity-100 transition-opacity duration-300" onClick={saveToPlaylist}>
+         { <button className="absolute bottom-2 right-2 bg-green-500 text-black p-3 rounded-full  group-hover:backdrop-opacity-100 transition-opacity duration-300" onClick={saveToPlaylist}>
             <FaBookmark />
-          </button>
+          </button>}
         </div>
       </div>
       <p className="font-bold mt-2 mb-1">{name}</p>
