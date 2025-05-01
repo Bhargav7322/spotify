@@ -7,7 +7,7 @@ import React, {
   useState,
 } from "react";
 import axios from "axios";
-import Album from './../Pages/Album';
+import Album from "./../Pages/Album";
 
 const server = "http://localhost:8000";
 
@@ -60,7 +60,6 @@ export const SongProvider: React.FC<SongProviderProps> = ({ children }) => {
   const [index, setIndex] = useState<number>(0);
   const [albumSong, setAlbumSong] = useState<Song[]>([]);
   const [albumData, setAlbumData] = useState<Album | null>(null);
-  
 
   const fetchSongs = useCallback(async () => {
     setLoading(true);
@@ -97,41 +96,42 @@ export const SongProvider: React.FC<SongProviderProps> = ({ children }) => {
       setAlbums(data);
     } catch (error) {
       console.log(error);
-    }finally{
+    } finally {
       setLoading(false);
     }
   }, []);
 
- const nextSong = useCallback(() => {
-  if(index === songs.length - 1) {
-    setIndex(0)
-    setSelectedSong(songs[0]?.id.toString())
-  }else{
-    setIndex((prevIndex)=> prevIndex + 1)
-    setSelectedSong(songs[index + 1]?.id.toString())
-  }
- },[index,songs])
+  const nextSong = useCallback(() => {
+    if (index === songs.length - 1) {
+      setIndex(0);
+      setSelectedSong(songs[0]?.id.toString());
+    } else {
+      setIndex((prevIndex) => prevIndex + 1);
+      setSelectedSong(songs[index + 1]?.id.toString());
+    }
+  }, [index, songs]);
 
-const prevSong = useCallback(() => {
-  if(index > 0) {
-    setIndex((prevIndex)=> prevIndex - 1)
-    setSelectedSong(songs[index - 1]?.id.toString())
-  }
-},[songs,index])
+  const prevSong = useCallback(() => {
+    if (index > 0) {
+      setIndex((prevIndex) => prevIndex - 1);
+      setSelectedSong(songs[index - 1]?.id.toString());
+    }
+  }, [songs, index]);
 
-
-const fetchAlbumSongs = useCallback(async (id: string) => {
-  setLoading(true);
-  try {
-    const { data } = await axios.get<{songs: Song[]; album: Album}>(`${server}/api/v1/song/album    /${id}`);
-    setAlbumSong(data.songs);
-    setAlbumData(data.album);
-  } catch (error) {
-    console.log(error);
-  } finally {
-    setLoading(false);
-  }
-},[])
+  const fetchAlbumSongs = useCallback(async (id: string) => {
+    setLoading(true);
+    try {
+      const { data } = await axios.get<{ songs: Song[]; album: Album }>(
+        `${server}/api/v1/album/${id}`
+      );
+      setAlbumSong(data.songs);
+      setAlbumData(data.album);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     fetchSongs();
