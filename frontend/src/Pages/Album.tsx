@@ -3,6 +3,8 @@ import Layout from "../components/Layout";
 import { useSongData } from "../context/SongContext";
 import { useEffect } from "react";
 import Loading from "../components/Loading";
+import { FaBookmark, FaPlay } from "react-icons/fa";
+import { useUserData } from "../context/UserContext";
 
 const Album = () => {
   const {
@@ -13,6 +15,9 @@ const Album = () => {
     setSelectedSong,
     loading,
   } = useSongData();
+
+
+  const {isAuth , addToPlaylist} = useUserData()
 
   const params = useParams<{ id: string }>();
   useEffect(() => {
@@ -71,6 +76,17 @@ const Album = () => {
                           <b className="mr-4 text-[#a7a7a7]">{index + 1}</b>
                           <img src={song.thumbnail ? song.thumbnail : "/download.jpg"} className="inline w-10 mr-5 " alt=""/>{song.title}
                         </p>
+                        <p className="text-[15px] hidden sm:block ">{song.description.slice(0,30)}...</p>
+                        <p className="flex justify-center items-center gap-5">
+                        {isAuth &&  <button className="text-[15px] text-center" onClick={()=>{
+                          addToPlaylist(song.id)
+                        }} ><FaBookmark/></button>}
+                          <button className="text-[15px] text-center" onClick={()=> {
+                         setSelectedSong(song.id)
+                         setIsPlying(true)
+                          }}><FaPlay/></button>
+ 
+                           </p>
                       </div>
                     )
                   })

@@ -42,6 +42,8 @@ interface SongContextType {
   albumSong: Song[];
   albumData: Album | null;
   fetchAlbumSongs: (id: string) => Promise<void>;
+  fetchSongs : ()=> Promise<void>
+  fetchAlbums : ()=> Promise<void>
 }
 
 const SongContext = createContext<SongContextType | undefined>(undefined);
@@ -89,7 +91,7 @@ export const SongProvider: React.FC<SongProviderProps> = ({ children }) => {
     }
   }, [selectedSong]);
 
-  const fetchAlbum = useCallback(async () => {
+  const fetchAlbums = useCallback(async () => {
     setLoading(true);
     try {
       const { data } = await axios.get<Album[]>(`${server}/api/v1/album/all`);
@@ -135,7 +137,7 @@ export const SongProvider: React.FC<SongProviderProps> = ({ children }) => {
 
   useEffect(() => {
     fetchSongs();
-    fetchAlbum();
+    fetchAlbums();
   }, []);
 
   return (
@@ -155,6 +157,8 @@ export const SongProvider: React.FC<SongProviderProps> = ({ children }) => {
         albumData,
         fetchAlbumSongs,
         albumSong,
+        fetchAlbums,
+        fetchSongs
       }}
     >
       {children}
