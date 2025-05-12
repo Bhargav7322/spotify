@@ -7,6 +7,8 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { Response } from 'express';
 import { Response } from 'express';
+import { Song } from './../context/SongContext';
+import { MdDelete } from "react-icons/md";
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -104,6 +106,58 @@ try {
         <input type="file" placeholder="choose Thumnnail" onChange={fileChangeHandler} required className="auth-input" accept="image/*"/>
         <button className="auth-btn" style={{width:"100px"}} disabled={btnLoading}>{btnLoading? "Please Wait..." : "Add"}</button>
       </form> 
+
+
+       <h2 className="text-2xl font-bold mb-6 mt-6">Add Songs</h2>
+      <form
+        className="bg-[#181818] p-6 rounded-lg shadow-lg flex flex-col items-center justify-center gap-4" onSubmit={addSongHandler}>
+        <input type="text" placeholder="title" className="auth-input" value={title} onChange={(e)=>setTitle(e.target.value)} required />
+        <input type="text" placeholder="description" className="auth-input" value={description} onChange={(e)=>setDescription(e.target.value)} required />
+          <select className="auth-input" value={album} onChange={(e)=>setAlbum(e.target.value)} required >
+            <option value="">Choose Album</option>
+            {
+              albums.map((e:any,i:number)=>{
+                return <option value={e.id} key={i}>{e.title}</option>
+              })
+            }
+          </select>
+        <input type="file" placeholder="choose audio" onChange={fileChangeHandler} required className="auth-input" accept="audio/*"/>
+        <button className="auth-btn" style={{width:"100px"}} disabled={btnLoading}>{btnLoading? "Please Wait..." : "Add"}</button>
+      </form> 
+      <div className="mt-8">
+        <h3 className="text-xl font-semibold mb-4">Added Albums</h3>
+        <div className="flex justify-center md:justify-start gap-2 items-center flex-wrap">
+          {
+            albums?.map((e,i)=>{
+            return  <div className="bg-[#181818] p-4 rounded-lg shadow-md" key={i}>
+                <img src={e.thumbnail} alt="" className="mr-1 w-52 h-52" />
+                <h4 className="text-lg font-bold">{e.title.slice(0,20)}...</h4>
+                <h4 className="text-lg font-bold">{e.description.slice(0,20)}...</h4>
+              <button disabled={btnLoading} className="px-3 py-1 bg-red-500 text-white rounded"><MdDelete/></button>
+            </div>
+            })
+          }
+        </div>
+      </div>
+
+       <div className="mt-8">
+        <h3 className="text-xl font-semibold mb-4">Added Songs</h3>
+        <div className="flex justify-center md:justify-start gap-2 items-center flex-wrap">
+          {
+            albums?.map((e,i)=>{
+            return  <div className="bg-[#181818] p-4 rounded-lg shadow-md" key={i}>
+              {
+                e.thumbnail ? <img src={e.thumbnail} alt="" className="mr-1 w-52 h-52" /> :  ( <div className="flex flex-col justify-center items-center gap-2"></div>  )
+              }
+                
+                <h4 className="text-lg font-bold">{e.title.slice(0,20)}...</h4>
+                <h4 className="text-lg font-bold">{e.description.slice(0,20)}...</h4>
+              <button disabled={btnLoading} className="px-3 py-1 bg-red-500 text-white rounded"><MdDelete/></button>
+            </div>
+            })
+          }
+        </div>
+      </div>
     </div>
   );
 };
