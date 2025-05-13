@@ -31,7 +31,7 @@ export const getAllsongs = TryCatch(async (req, res) => {
         songs = await redisClinet.get("songs");
     }
     if (songs) {
-        console.log("Cache hit");
+        console.log("Cache hit", songs);
         res.json(JSON.parse(songs));
         return;
     }
@@ -43,6 +43,7 @@ export const getAllsongs = TryCatch(async (req, res) => {
                 EX: CACHE_EXPIRY,
             });
         }
+        console.log("songsass", songs);
         res.json(songs);
         return;
     }

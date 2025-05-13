@@ -121,14 +121,15 @@ export const addThumbnail = TryCatch(async (req: AuthenticatedRequest, res) => {
   }
 
   const cloud = await cloudinary.v2.uploader.upload(fileBuffer.content);
+  console.log("cloud",cloud)
   const result =
     await sql`UPDATE songs SET thumbnail = ${cloud.secure_url} WHERE id = ${req.params.id} RETURNING *`;
 
     if(redisClinet.isReady){
-      await redisClinet.del("albums");
+      await redisClinet.del("songs");
       console.log("Cache invalidated for albums"); 
     }
-
+console.log("resukt",result)
 
   res.json({
     message: "Thumbnail Added",

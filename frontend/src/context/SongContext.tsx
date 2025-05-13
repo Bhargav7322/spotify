@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, {
   createContext,
   ReactNode,
@@ -67,6 +68,7 @@ export const SongProvider: React.FC<SongProviderProps> = ({ children }) => {
     setLoading(true);
     try {
       const { data } = await axios.get<Song[]>(`${server}/api/v1/song/all`);
+      console.log("dattttt",data)
       setSongs(data);
       if (data.length > 0) {
         setSelectedSong(data[0].id.toString());
