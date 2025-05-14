@@ -6,6 +6,8 @@ import { useSongData } from "../context/SongContext";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { MdDelete } from "react-icons/md";
+import { Response } from 'express';
+import { Response } from 'express';
 
 const server = "http://localhost:7000";
 
@@ -119,6 +121,48 @@ const Admin = () => {
       setBtnLoading(false);
     }
   };
+
+
+ const deleteAlbum = async(id:string)=>{
+  if(confirm("Are you sure you want to delete this album?")){
+    setBtnLoading(true)
+    try {
+      const {data} = await axios.delete(`${server}/api/v1/album/${id}`,{
+        headers:{
+          token:localStorage.getItem("token"),
+        }
+      })
+      toast.success(data.message)
+      fetchSongs()
+      fetchAlbums()
+      setBtnLoading(false)
+    } catch (error:any) {
+      toast.error(error.response?.data?.message || "An error occured")
+      setBtnLoading(false)
+    }
+  }
+ }
+
+
+  const deleteSong = async(id:string)=>{
+
+  if(confirm("Are you sure you want to delete this song?")){
+    setBtnLoading(true)
+    try {
+      const {data} = await axios.delete(`${server}/api/v1/song/${id}`,{
+        headers:{
+          token:localStorage.getItem("token"),
+        }
+      })
+      toast.success(data.message)
+      fetchSongs()
+      setBtnLoading(false)
+    } catch (error:any) {
+      toast.error(error.response?.data?.message || "An error occured")
+      setBtnLoading(false)
+    }
+  }
+ }
 
   useEffect(() => {
     if (user && user.role !== "admin") {
@@ -237,6 +281,7 @@ const Admin = () => {
                 <button
                   disabled={btnLoading}
                   className="px-3 py-1 bg-red-500 text-white rounded"
+                     onClick={()=> deleteAlbum(e.id)}
                 >
                   <MdDelete />
                 </button>
@@ -250,7 +295,6 @@ const Admin = () => {
         <h3 className="text-xl font-semibold mb-4">Added Songs</h3>
         <div className="flex justify-center md:justify-start gap-2 items-center flex-wrap">
           {songs?.map((e, i) => {
-            // {console.log("song",e)}
             return (
               <div className="bg-[#181818] p-4 rounded-lg shadow-md" key={i}>
                 {e?.thumbnail ? (
@@ -276,6 +320,7 @@ const Admin = () => {
                 <button
                   disabled={btnLoading}
                   className="px-3 py-1 bg-red-500 text-white rounded"
+                  onClick={()=> deleteSong(e.id)}
                 >
                   <MdDelete />
                 </button>

@@ -127,7 +127,7 @@ export const addThumbnail = TryCatch(async (req: AuthenticatedRequest, res) => {
 
     if(redisClinet.isReady){
       await redisClinet.del("songs");
-      console.log("Cache invalidated for albums"); 
+      console.log("Cache invalidated for songs"); 
     }
 console.log("resukt",result)
 
