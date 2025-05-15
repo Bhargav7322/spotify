@@ -6,8 +6,7 @@ import { useSongData } from "../context/SongContext";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { MdDelete } from "react-icons/md";
-import { Response } from 'express';
-import { Response } from 'express';
+
 
 const server = "http://localhost:7000";
 
